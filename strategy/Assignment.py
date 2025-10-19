@@ -32,16 +32,13 @@ def role_assignment(teammate_positions, formation_positions):
     # For each player index (0 to 4), create a list of formation indices (0 to 4)
     # sorted from closest to farthest.
     for p_idx in range(num_players):
-        # Calculate distances to all formation positions
         distances = []
         for f_idx in range(num_players):
             dist = calculate_distance(teammate_positions[p_idx], formation_positions[f_idx])
             distances.append((dist, f_idx))
         
-        # Sort by distance (the first element in the tuple)
         distances.sort(key=lambda x: x[0])
         
-        # Store just the sorted formation indices
         player_preferences[p_idx] = [f_idx for dist, f_idx in distances]
 
 
@@ -49,16 +46,13 @@ def role_assignment(teammate_positions, formation_positions):
     # For each formation index (0 to 4), create a list of player indices (0 to 4)
     # sorted from closest to farthest.
     for f_idx in range(num_players):
-        # Calculate distances to all players
         distances = []
         for p_idx in range(num_players):
             dist = calculate_distance(teammate_positions[p_idx], formation_positions[f_idx])
             distances.append((dist, p_idx))
         
-        # Sort by distance
         distances.sort(key=lambda x: x[0])
         
-        # Store just the sorted player indices
         formation_preferences[f_idx] = [p_idx for dist, p_idx in distances]
 
     # -----------------------------------------------------------#
@@ -74,44 +68,26 @@ def role_assignment(teammate_positions, formation_positions):
     # TODO: Implement the main while loop.
     # The loop should continue as long as 'unmatched_players' is not empty.
     while unmatched_players:
-        # Get the current player to make a proposal
         proposing_player_idx = unmatched_players[0]
         
-        # Get this player's top choice from their preference list
-        # Hint: Use a copy or be careful, as you might modify the list
         target_formation_idx = player_preferences[proposing_player_idx][0]
         
-        # Check if the target formation is currently matched
         current_partner_idx = current_matches[target_formation_idx]
 
         if current_partner_idx is None:
-            # The formation is free. Accept the proposal.
-            # 1. Assign the player to the formation.
-            # 2. Remove the player from the unmatched list.
             current_matches[target_formation_idx] = proposing_player_idx
             unmatched_players.pop(0)
 
         else:
-            # The formation is not free. It must decide.
-            # Get the formation's preference list to compare.
             formation_pref_list = formation_preferences[target_formation_idx]
             
-            # Find the rank of the current partner and the new proposer.
             rank_of_current_partner = formation_pref_list.index(current_partner_idx)
             rank_of_proposer = formation_pref_list.index(proposing_player_idx)
 
             if rank_of_proposer < rank_of_current_partner:
-                # The new proposer is preferred.
-                # 1. Assign the new player to the formation.
-                # 2. Remove the new player from the unmatched list.
-                # 3. Add the old, rejected player back to the unmatched list.
                 current_matches[target_formation_idx] = proposing_player_idx
                 unmatched_players.pop(0)
                 unmatched_players.append(current_partner_idx)
-            # else, the proposer is rejected. Nothing changes for the formation.
-
-        # The proposing player has now proposed to this formation,
-        # so remove it from their preference list so they don't propose again.
         player_preferences[proposing_player_idx].pop(0)
 
 
